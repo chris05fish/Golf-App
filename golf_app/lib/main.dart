@@ -1,11 +1,6 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(InsertDataTable());
-  //runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class Game {
   int score;
@@ -14,12 +9,28 @@ class Game {
   Game(this.score, this.course, this.par);
 }
 
-class InsertDataTable extends StatefulWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static const String _title = 'Flutter Code Sample';
+
   @override
-  _InsertDataTableState createState() => new _InsertDataTableState();
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: _title,
+      home: MyStatefulWidget(),
+    );
+  }
 }
 
-class _InsertDataTableState extends State<InsertDataTable> {
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({super.key});
+
+  @override
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+}
+
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   List<Game> ScoreLst = <Game>[
     //Game(82, "Bidwell Golf Course"),
     //Game(79, "Los Lagos Golf Course"),
@@ -82,103 +93,141 @@ class _InsertDataTableState extends State<InsertDataTable> {
     }
   }
 
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Business',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 2: School',
+      style: optionStyle,
+    ),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // MaterialApp with home as scaffold
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Handicap: $fin',
-          ), //var age; print('Age is: $age');
-        ),
-        body: ListView(
-          children: <Widget>[
-            Form(
-              key: formKey,
-              child: Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text("Score:"),
-                    TextFormField(
-                      controller: Score_Controller,
-                      keyboardType: TextInputType.number,
-                      validator: (val) => NotIntCheck(val)
-                          ? 'Enter Score,Number Required'
-                          : null,
-                    ),
-                    Text("Course Name:"),
-                    TextFormField(
-                      controller: Course_Controller,
-                      keyboardType: TextInputType.text,
-                      validator: (val) =>
-                          val?.length == 0 ? 'Enter Course Name' : null,
-                    ),
-                    Text("Par:"),
-                    TextFormField(
-                      controller: Par_Controller,
-                      keyboardType: TextInputType.number,
-                      validator: (val) =>
-                          NotIntCheck(val) ? 'Enter Par,Number Required' : null,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: MaterialButton(
-                        color: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        child: Text(
-                          'Insert Score',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        onPressed: validate,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Handicap: $fin'),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Form(
+            key: formKey,
+            child: Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text("Score:"),
+                  TextFormField(
+                    controller: Score_Controller,
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        NotIntCheck(val) ? 'Enter Score,Number Required' : null,
+                  ),
+                  Text("Course Name:"),
+                  TextFormField(
+                    controller: Course_Controller,
+                    keyboardType: TextInputType.text,
+                    validator: (val) =>
+                        val?.length == 0 ? 'Enter Course Name' : null,
+                  ),
+                  Text("Par:"),
+                  TextFormField(
+                    controller: Par_Controller,
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        NotIntCheck(val) ? 'Enter Par,Number Required' : null,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: MaterialButton(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
+                      child: Text(
+                        'Insert Score',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: validate,
                     ),
-                  ],
-                ),
-              ),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: [
-                  DataColumn(
-                    label: Text("Score"),
-                  ),
-                  DataColumn(
-                    label: Text("Course Name"),
-                  ),
-                  DataColumn(
-                    label: Text("Par"),
                   ),
                 ],
-                rows: ScoreLst.map(
-                  (s) => DataRow(cells: [
-                    DataCell(
-                      Text(s.score.toString()),
-                    ),
-                    DataCell(
-                      Text(s.course),
-                    ),
-                    DataCell(
-                      Text(s.par.toString()),
-                    ),
-                  ]),
-                ).toList(),
               ),
             ),
-          ],
-        ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: [
+                DataColumn(
+                  label: Text("Score"),
+                ),
+                DataColumn(
+                  label: Text("Course Name"),
+                ),
+                DataColumn(
+                  label: Text("Par"),
+                ),
+              ],
+              rows: ScoreLst.map(
+                (s) => DataRow(cells: [
+                  DataCell(
+                    Text(s.score.toString()),
+                  ),
+                  DataCell(
+                    Text(s.course),
+                  ),
+                  DataCell(
+                    Text(s.par.toString()),
+                  ),
+                ]),
+              ).toList(),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Stats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics_outlined),
+            label: 'Graph',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
 }
 
+/*
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -287,4 +336,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-}
+}*/
