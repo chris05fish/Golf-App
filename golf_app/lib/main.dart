@@ -9,6 +9,13 @@ class Game {
   Game(this.score, this.course, this.par);
 }
 
+class Stat {
+  int fairway;
+  int green;
+  int putt;
+  Stat(this.fairway, this.green, this.putt);
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -31,7 +38,7 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  List<Game> ScoreLst = <Game>[
+  List<Game> ScoreList = <Game>[
     //Game(82, "Bidwell Golf Course"),
     //Game(79, "Los Lagos Golf Course"),
   ];
@@ -71,7 +78,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       String Course = Course_Controller.text;
       String Par = Par_Controller.text;
       Game s = Game(int.parse(Score), Course, int.parse(Par));
-      ScoreLst.add(s);
+      ScoreList.add(s);
       //lastID++;
       refreshList(int.parse(Score), int.parse(Par));
       Score_Controller.text = "";
@@ -94,6 +101,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 
   int _selectedIndex = 0;
+  final ScrollController _homeController = ScrollController();
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
@@ -110,13 +118,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       style: optionStyle,
     ),
   ];
-
+/*
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,7 +195,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   label: Text("Par"),
                 ),
               ],
-              rows: ScoreLst.map(
+              rows: ScoreList.map(
                 (s) => DataRow(cells: [
                   DataCell(
                     Text(s.score.toString()),
@@ -221,7 +229,251 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                  builder: (context) => new MyStatefulWidget()));
+              // _navigatorKey.currentState.pushReplacementNamed("Page 1");
+              break;
+            case 1:
+              Navigator.of(context).pushReplacement(
+                  new MaterialPageRoute(builder: (context) => new Stats()));
+              //  _navigatorKey.currentState.pushReplacementNamed("Page 2");
+              break;
+            case 2:
+              Navigator.of(context).pushReplacement(
+                  new MaterialPageRoute(builder: (context) => new Stats()));
+              // _navigatorKey.currentState.pushReplacementNamed("Profile");
+              break;
+          }
+        },
+      ),
+    );
+  }
+}
+
+class Stats extends StatefulWidget {
+  const Stats({super.key});
+
+  @override
+  State<Stats> createState() => _StatsState();
+}
+
+class _StatsState extends State<Stats> {
+  List<Stat> StatList = <Stat>[
+    //Game(82, "Bidwell Golf Course"),
+    //Game(79, "Los Lagos Golf Course"),
+  ];
+
+  final formKey = new GlobalKey<FormState>();
+  var Fairway_Controller = new TextEditingController();
+  var Green_Controller = new TextEditingController();
+  var Putt_Controller = new TextEditingController();
+  //var lastID = 2;
+  var total = 0;
+  double fin = 0;
+  var c = 0;
+
+  @override
+  // Method that call only once to initiate the default app.
+  void initState() {
+    super.initState();
+    //lastID++;
+    //ID_Controller.text = lastID.toString();
+  }
+
+  // Method that is used to refresh the UI and show the new inserted data.
+  refreshList(int f, int g, int p) {
+    setState(() {
+      total = total + f;
+      c++;
+      fin = total / c;
+      //ID_Controller.text = lastID.toString();
+    });
+  }
+
+  // Method used to validate the user data
+  validate() {
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
+      String Fairway = Fairway_Controller.text;
+      String Green = Green_Controller.text;
+      String Putt = Putt_Controller.text;
+      Stat s = Stat(int.parse(Fairway), int.parse(Green), int.parse(Putt));
+      StatList.add(s);
+      //lastID++;
+      refreshList(int.parse(Fairway), int.parse(Green), int.parse(Putt));
+      Fairway_Controller.text = "";
+      Green_Controller.text = "";
+      Putt_Controller.text = "";
+    }
+  }
+
+  // Method to check the value of age, age is int or not
+  bool NotIntCheck(var N) {
+    final V = int.tryParse(N);
+
+    if (V == null) {
+      print("Not Int");
+      return true;
+    } else {
+      print("Int");
+      return false;
+    }
+  }
+
+  int _selectedIndex = 0;
+  final ScrollController _homeController = ScrollController();
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Business',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 2: School',
+      style: optionStyle,
+    ),
+  ];
+/*
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+*/
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Handicap: $fin'),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Form(
+            key: formKey,
+            child: Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text("Fairways Hit:"),
+                  TextFormField(
+                    controller: Fairway_Controller,
+                    keyboardType: TextInputType.number,
+                    validator: (val) => NotIntCheck(val)
+                        ? 'Enter Fairways Hit,Number Required'
+                        : null,
+                  ),
+                  Text("Greens Hit:"),
+                  TextFormField(
+                    controller: Green_Controller,
+                    keyboardType: TextInputType.text,
+                    validator: (val) => NotIntCheck(val)
+                        ? 'Enter Greens Hit,Number Required'
+                        : null,
+                  ),
+                  Text("Putts:"),
+                  TextFormField(
+                    controller: Putt_Controller,
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        NotIntCheck(val) ? 'Enter Putts,Number Required' : null,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: MaterialButton(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Text(
+                        'Insert Score',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: validate,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: [
+                DataColumn(
+                  label: Text("Fairways Hit"),
+                ),
+                DataColumn(
+                  label: Text("GIR"),
+                ),
+                DataColumn(
+                  label: Text("Putts"),
+                ),
+              ],
+              rows: StatList.map(
+                (s) => DataRow(cells: [
+                  DataCell(
+                    Text(s.fairway.toString()),
+                  ),
+                  DataCell(
+                    Text(s.green.toString()),
+                  ),
+                  DataCell(
+                    Text(s.putt.toString()),
+                  ),
+                ]),
+              ).toList(),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Stats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics_outlined),
+            label: 'Graph',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                  builder: (context) => new MyStatefulWidget()));
+              // _navigatorKey.currentState.pushReplacementNamed("Page 1");
+              break;
+            case 1:
+              Navigator.of(context).pushReplacement(
+                  new MaterialPageRoute(builder: (context) => new Stats()));
+              //  _navigatorKey.currentState.pushReplacementNamed("Page 2");
+              break;
+            case 2:
+              Navigator.of(context).pushReplacement(
+                  new MaterialPageRoute(builder: (context) => new Stats()));
+              // _navigatorKey.currentState.pushReplacementNamed("Profile");
+              break;
+          }
+        },
       ),
     );
   }
