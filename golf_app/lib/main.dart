@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
+class BottomNavBarItemData {
+  final String label;
+  final Icon icon;
+  final Widget screen;
+
+  BottomNavBarItemData(
+    this.label,
+    this.icon,
+    this.screen,
+  );
+}
 
 void main() => runApp(const MyApp());
 
@@ -23,7 +36,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: _title,
       home: MyStatefulWidget(),
     );
@@ -31,13 +44,289 @@ class MyApp extends StatelessWidget {
 }
 
 class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({super.key});
+  MyStatefulWidget({super.key});
+  int selectedIdx = 0;
+
+  final List<BottomNavBarItemData> screens = [
+    BottomNavBarItemData(
+      "First Page",
+      Icon(Icons.cake),
+      Games(),
+    ),
+    BottomNavBarItemData(
+      "Seond Page",
+      Icon(Icons.calendar_today),
+      Stats(),
+    ),
+  ];
 
   @override
   State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+class _MyStatefulWidgetState extends State<MyStatefulWidget>
+    with AutomaticKeepAliveClientMixin<MyStatefulWidget> {
+  //List pages = [MyStatefulWidget(), Stats()];
+  @override
+  bool get wantKeepAlive => true;
+
+  /*List<Game> ScoreList = <Game>[
+    //Game(82, "Bidwell Golf Course"),
+    //Game(79, "Los Lagos Golf Course"),
+  ];
+
+  final formKey = new GlobalKey<FormState>();
+  var Score_Controller = new TextEditingController();
+  var Course_Controller = new TextEditingController();
+  var Par_Controller = new TextEditingController();
+  //var lastID = 2;
+  var total = 0;
+  double fin = 0;
+  var c = 0;
+
+  @override
+  // Method that call only once to initiate the default app.
+  void initState() {
+    super.initState();
+    //lastID++;
+    //ID_Controller.text = lastID.toString();
+  }
+
+  // Method that is used to refresh the UI and show the new inserted data.
+  refreshList(int s, int p) {
+    setState(() {
+      total = total + s - p;
+      c++;
+      fin = total / c;
+      //ID_Controller.text = lastID.toString();
+    });
+  }
+
+  // Method used to validate the user data
+  validate() {
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
+      String Score = Score_Controller.text;
+      String Course = Course_Controller.text;
+      String Par = Par_Controller.text;
+      Game s = Game(int.parse(Score), Course, int.parse(Par));
+      ScoreList.add(s);
+      //lastID++;
+      refreshList(int.parse(Score), int.parse(Par));
+      Score_Controller.text = "";
+      Course_Controller.text = "";
+      Par_Controller.text = "";
+    }
+  }
+
+  // Method to check the value of age, age is int or not
+  bool NotIntCheck(var N) {
+    final V = int.tryParse(N);
+
+    if (V == null) {
+      print("Not Int");
+      return true;
+    } else {
+      print("Int");
+      return false;
+    }
+  }
+
+  int _selectedIndex = 0;
+  final ScrollController _homeController = ScrollController();
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Business',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 2: School',
+      style: optionStyle,
+    ),
+  ];
+/*
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+*/*/
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: widget.selectedIdx,
+        onTap: (idx) => setState(() {
+          widget.selectedIdx = idx;
+        }),
+        items: widget.screens
+            .map(
+              (e) => BottomNavigationBarItem(
+                label: e.label,
+                icon: e.icon,
+              ),
+            )
+            .toList(),
+      ),
+      body: IndexedStack(
+        index: widget.selectedIdx,
+        children: [
+          ...widget.screens.map((e) => e.screen).toList(),
+        ],
+      ),
+      /*appBar: AppBar(
+        title: Text('Handicap: $fin'),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Form(
+            key: formKey,
+            child: Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text("Score:"),
+                  TextFormField(
+                    controller: Score_Controller,
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        NotIntCheck(val) ? 'Enter Score,Number Required' : null,
+                  ),
+                  Text("Course Name:"),
+                  TextFormField(
+                    controller: Course_Controller,
+                    keyboardType: TextInputType.text,
+                    validator: (val) =>
+                        val?.length == 0 ? 'Enter Course Name' : null,
+                  ),
+                  Text("Par:"),
+                  TextFormField(
+                    controller: Par_Controller,
+                    keyboardType: TextInputType.number,
+                    validator: (val) =>
+                        NotIntCheck(val) ? 'Enter Par,Number Required' : null,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: MaterialButton(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Text(
+                        'Insert Score',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: validate,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: [
+                DataColumn(
+                  label: Text("Score"),
+                ),
+                DataColumn(
+                  label: Text("Course Name"),
+                ),
+                DataColumn(
+                  label: Text("Par"),
+                ),
+              ],
+              rows: ScoreList.map(
+                (s) => DataRow(cells: [
+                  DataCell(
+                    Text(s.score.toString()),
+                  ),
+                  DataCell(
+                    Text(s.course),
+                  ),
+                  DataCell(
+                    Text(s.par.toString()),
+                  ),
+                ]),
+              ).toList(),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article_outlined),
+            label: 'Stats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics_outlined),
+            label: 'Graph',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: (int index) {
+          switch (index) {
+            case 0:
+              MyStatefulWidget();
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new MyStatefulWidget()));
+              // _navigatorKey.currentState.pushReplacementNamed("Page 1");
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Stats()),
+              );
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new Stats()));
+              //  _navigatorKey.currentState.pushReplacementNamed("Page 2");
+              break;
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Stats()),
+              );
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new Stats()));
+              // _navigatorKey.currentState.pushReplacementNamed("Profile");
+              break;
+          }
+        },
+      ),*/
+    );
+  }
+}
+
+class Games extends StatefulWidget {
+  const Games({super.key});
+
+  @override
+  State<Games> createState() => _GamesState();
+}
+
+class _GamesState extends State<Games>
+    with AutomaticKeepAliveClientMixin<Games> {
+  //List pages = [MyStatefulWidget(), Stats()];
+  @override
+  bool get wantKeepAlive => true;
+
   List<Game> ScoreList = <Game>[
     //Game(82, "Bidwell Golf Course"),
     //Game(79, "Los Lagos Golf Course"),
@@ -212,7 +501,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      /*bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -232,23 +521,32 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.of(context).pushReplacement(new MaterialPageRoute(
-                  builder: (context) => new MyStatefulWidget()));
+              MyStatefulWidget();
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new MyStatefulWidget()));
               // _navigatorKey.currentState.pushReplacementNamed("Page 1");
               break;
             case 1:
-              Navigator.of(context).pushReplacement(
-                  new MaterialPageRoute(builder: (context) => new Stats()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Stats()),
+              );
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new Stats()));
               //  _navigatorKey.currentState.pushReplacementNamed("Page 2");
               break;
             case 2:
-              Navigator.of(context).pushReplacement(
-                  new MaterialPageRoute(builder: (context) => new Stats()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Stats()),
+              );
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new Stats()));
               // _navigatorKey.currentState.pushReplacementNamed("Profile");
               break;
           }
         },
-      ),
+      ),*/
     );
   }
 }
@@ -260,7 +558,11 @@ class Stats extends StatefulWidget {
   State<Stats> createState() => _StatsState();
 }
 
-class _StatsState extends State<Stats> {
+class _StatsState extends State<Stats>
+    with AutomaticKeepAliveClientMixin<Stats> {
+  @override
+  bool get wantKeepAlive => true;
+
   List<Stat> StatList = <Stat>[
     //Game(82, "Bidwell Golf Course"),
     //Game(79, "Los Lagos Golf Course"),
@@ -438,7 +740,7 @@ class _StatsState extends State<Stats> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      /*bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -458,23 +760,33 @@ class _StatsState extends State<Stats> {
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.of(context).pushReplacement(new MaterialPageRoute(
-                  builder: (context) => new MyStatefulWidget()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyStatefulWidget()),
+              );
+              //Navigator.pop(context);
+              //Navigator.of(context).pushReplacement(new MaterialPageRoute(
+              //builder: (context) => new MyStatefulWidget()));
               // _navigatorKey.currentState.pushReplacementNamed("Page 1");
               break;
             case 1:
-              Navigator.of(context).pushReplacement(
-                  new MaterialPageRoute(builder: (context) => new Stats()));
+              Stats();
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new Stats()));
               //  _navigatorKey.currentState.pushReplacementNamed("Page 2");
               break;
             case 2:
-              Navigator.of(context).pushReplacement(
-                  new MaterialPageRoute(builder: (context) => new Stats()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Stats()),
+              );
+              //Navigator.of(context).pushReplacement(
+              //new MaterialPageRoute(builder: (context) => new Stats()));
               // _navigatorKey.currentState.pushReplacementNamed("Profile");
               break;
           }
         },
-      ),
+      ),*/
     );
   }
 }
