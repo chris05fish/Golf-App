@@ -49,13 +49,13 @@ class MyStatefulWidget extends StatefulWidget {
 
   final List<BottomNavBarItemData> screens = [
     BottomNavBarItemData(
-      "First Page",
-      Icon(Icons.cake),
+      "Home",
+      Icon(Icons.home),
       Games(),
     ),
     BottomNavBarItemData(
-      "Seond Page",
-      Icon(Icons.calendar_today),
+      "Stats",
+      Icon(Icons.article_outlined),
       Stats(),
     ),
   ];
@@ -355,6 +355,18 @@ class _GamesState extends State<Games>
       total = total + s - p;
       c++;
       fin = total / c;
+      fin = double.parse((fin.toStringAsFixed(1)));
+      //ID_Controller.text = lastID.toString();
+    });
+  }
+
+  //Method used to refresh UI after removed data
+  refreshListRemove(int s, int p) {
+    setState(() {
+      total = total - (s - p);
+      c--;
+      fin = total / c;
+      fin = double.parse((fin.toStringAsFixed(1)));
       //ID_Controller.text = lastID.toString();
     });
   }
@@ -471,34 +483,42 @@ class _GamesState extends State<Games>
             ),
           ),
           SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: [
-                DataColumn(
-                  label: Text("Score"),
-                ),
-                DataColumn(
-                  label: Text("Course Name"),
-                ),
-                DataColumn(
-                  label: Text("Par"),
-                ),
-              ],
-              rows: ScoreList.map(
-                (s) => DataRow(cells: [
-                  DataCell(
-                    Text(s.score.toString()),
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(
+                    label: Text("Score"),
                   ),
-                  DataCell(
-                    Text(s.course),
+                  DataColumn(
+                    label: Text("Course Name"),
                   ),
-                  DataCell(
-                    Text(s.par.toString()),
+                  DataColumn(
+                    label: Text("Par"),
                   ),
-                ]),
-              ).toList(),
-            ),
-          ),
+                  DataColumn(label: Text("Delete")),
+                ],
+                rows: ScoreList.map(
+                  (s) => DataRow(cells: [
+                    DataCell(
+                      Text(s.score.toString()),
+                    ),
+                    DataCell(
+                      Text(s.course),
+                    ),
+                    DataCell(
+                      Text(s.par.toString()),
+                    ),
+                    DataCell(IconButton(
+                        onPressed: () {
+                          setState(() {
+                            ScoreList.remove(s);
+                            refreshListRemove(s.score, s.par);
+                          });
+                        },
+                        icon: Icon(Icons.delete))),
+                  ]),
+                ).toList(),
+              )),
         ],
       ),
       /*bottomNavigationBar: BottomNavigationBar(
@@ -573,9 +593,13 @@ class _StatsState extends State<Stats>
   var Green_Controller = new TextEditingController();
   var Putt_Controller = new TextEditingController();
   //var lastID = 2;
-  var total = 0;
-  double fin = 0;
-  var c = 0;
+  double totalPutts = 0;
+  double totalGreens = 0;
+  double totalFairways = 0;
+  double finPutts = 0;
+  double finGreens = 0;
+  double finFairways = 0;
+  var count = 0;
 
   @override
   // Method that call only once to initiate the default app.
@@ -588,9 +612,18 @@ class _StatsState extends State<Stats>
   // Method that is used to refresh the UI and show the new inserted data.
   refreshList(int f, int g, int p) {
     setState(() {
-      total = total + f;
-      c++;
-      fin = total / c;
+      totalPutts = totalPutts + p / 18;
+      totalGreens = totalGreens + g / 18;
+      totalFairways = totalFairways + f / 18;
+      count++;
+      finPutts = totalPutts / count;
+      finGreens = totalGreens / count;
+      finFairways = totalFairways / count;
+      finGreens = finGreens * 100;
+      finFairways = finFairways * 100;
+      finPutts = double.parse((finPutts).toStringAsFixed(1));
+      finGreens = double.parse((finGreens).toStringAsFixed(1));
+      finFairways = double.parse((finFairways).toStringAsFixed(1));
       //ID_Controller.text = lastID.toString();
     });
   }
@@ -655,7 +688,8 @@ class _StatsState extends State<Stats>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Handicap: $fin'),
+        title: Text(
+            'Avg Putts: $finPutts, Greens Hit: $finGreens%, Fairways Hit: $finFairways%'),
       ),
       body: ListView(
         children: <Widget>[
