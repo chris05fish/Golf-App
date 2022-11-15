@@ -628,6 +628,24 @@ class _StatsState extends State<Stats>
     });
   }
 
+  refreshListRemove(int f, int g, int p) {
+    setState(() {
+      totalPutts = totalPutts - p / 18;
+      totalGreens = totalGreens - g / 18;
+      totalFairways = totalFairways - f / 18;
+      count--;
+      finPutts = totalPutts / count;
+      finGreens = totalGreens / count;
+      finFairways = totalFairways / count;
+      finGreens = finGreens * 100;
+      finFairways = finFairways * 100;
+      finPutts = finPutts * 1;
+      finPutts = double.parse((finPutts).toStringAsFixed(1));
+      finGreens = double.parse((finGreens).toStringAsFixed(1));
+      finFairways = double.parse((finFairways).toStringAsFixed(1));
+    });
+  }
+
   // Method used to validate the user data
   validate() {
     if (formKey.currentState!.validate()) {
@@ -731,7 +749,7 @@ class _StatsState extends State<Stats>
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                       child: Text(
-                        'Insert Score',
+                        'Insert Stats',
                         style: TextStyle(
                           color: Colors.white,
                         ),
@@ -756,6 +774,7 @@ class _StatsState extends State<Stats>
                 DataColumn(
                   label: Text("Putts"),
                 ),
+                DataColumn(label: Text("Delete")),
               ],
               rows: StatList.map(
                 (s) => DataRow(cells: [
@@ -768,6 +787,14 @@ class _StatsState extends State<Stats>
                   DataCell(
                     Text(s.putt.toString()),
                   ),
+                  DataCell(IconButton(
+                      onPressed: () {
+                        setState(() {
+                          StatList.remove(s);
+                          refreshListRemove(s.fairway, s.green, s.putt);
+                        });
+                      },
+                      icon: Icon(Icons.delete))),
                 ]),
               ).toList(),
             ),
