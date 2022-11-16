@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:golf_app/globals.dart' as globals;
+import 'dart:math';
+import 'package:collection/collection.dart';
+import 'dart:async';
+
+StreamController<List<Stat>> streamController = StreamController<List<Stat>>();
 
 class BottomNavBarItemData {
   final String label;
@@ -57,6 +65,11 @@ class MyStatefulWidget extends StatefulWidget {
       "Stats",
       Icon(Icons.article_outlined),
       Stats(),
+    ),
+    BottomNavBarItemData(
+      "Graphs",
+      Icon(Icons.access_time),
+      Graphs(pricePoints, streamController.stream),
     ),
   ];
 
@@ -655,6 +668,12 @@ class _StatsState extends State<Stats>
       String Putt = Putt_Controller.text;
       Stat s = Stat(int.parse(Fairway), int.parse(Green), int.parse(Putt));
       StatList.add(s);
+
+      streamController.add(StatList);
+
+      globals.gStat gS =
+          globals.gStat(int.parse(Fairway), int.parse(Green), int.parse(Putt));
+      globals.gList.add(gS);
       //lastID++;
       refreshList(int.parse(Fairway), int.parse(Green), int.parse(Putt));
       Fairway_Controller.text = "";
@@ -791,6 +810,7 @@ class _StatsState extends State<Stats>
                       onPressed: () {
                         setState(() {
                           StatList.remove(s);
+                          globals.gList.remove(s);
                           refreshListRemove(s.fairway, s.green, s.putt);
                         });
                       },
@@ -848,6 +868,101 @@ class _StatsState extends State<Stats>
           }
         },
       ),*/
+    );
+  }
+}
+
+class PricePoint {
+  final double x;
+  final double y;
+
+  PricePoint({required this.x, required this.y});
+}
+
+List<PricePoint> get pricePoints {
+  /*final Random random = Random();
+  final randomNumbers = <double>[];
+  for (var i = 0; i <= 11; i++) {
+    randomNumbers.add(random.nextDouble());
+  }
+
+  return randomNumbers
+      .mapIndexed(
+          (index, element) => PricePoint(x: index.toDouble(), y: element))
+      .toList();*/
+  /*final randomNumbers = <double>[];
+  randomNumbers.add(0);
+  randomNumbers.add(0);
+  for (var i = 0; i <= globals.gList.length; i++) {
+    randomNumbers.add(globals.gList[i].putt.toDouble());
+  }
+
+  return randomNumbers
+      .mapIndexed(
+          (index, element) => PricePoint(x: index.toDouble(), y: element))
+      .toList();*/
+  List<PricePoint> l = <PricePoint>[];
+  for (var i = 0; i < globals.gList.length; i++) {
+    l.add(PricePoint(x: globals.gList[i].putt.toDouble(), y: i.toDouble()));
+  }
+  return l;
+}
+
+class Graphs extends StatefulWidget {
+  final List<PricePoint> points;
+  final Stream<List<Stat>> stream;
+
+  //const Graphs(this.points, {Key? key}) : super(key: key);
+  const Graphs(this.points, this.stream);
+
+  @override
+  _GraphsState createState() => _GraphsState();
+}
+
+class _GraphsState extends State<Graphs> {
+  List<PricePoint> points = <PricePoint>[];
+  /*final Stream<int> stream;
+
+  //const Graphs(this.points, {Key? key}) : super(key: key);
+  const Graphs(this.points, this.stream);*/
+
+  @override
+  void initState() {
+    super.initState();
+    widget.stream.listen((list) {
+      mySetState(list);
+    });
+  }
+
+//switch to l.add(list) parameter
+  void mySetState(List<Stat> list) {
+    //List menuList = ['A', 'B', 'C'];
+    setState(() {
+      List<PricePoint> l = <PricePoint>[];
+      for (var i = 0; i < globals.gList.length; i++) {
+        l.add(PricePoint(x: globals.gList[i].putt.toDouble(), y: i.toDouble()));
+      }
+      points = l;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 2,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: points.map((point) => FlSpot(point.y, point.x)).toList(),
+              isCurved: false,
+              // dotData: FlDotData(
+              //   show: false,
+              // ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
