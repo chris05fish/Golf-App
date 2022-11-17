@@ -8,6 +8,10 @@ import 'package:collection/collection.dart';
 import 'dart:async';
 
 StreamController<List<Stat>> streamController = StreamController<List<Stat>>();
+StreamController<List<Stat>> streamControllerGreen =
+    StreamController<List<Stat>>();
+StreamController<List<Stat>> streamControllerDrive =
+    StreamController<List<Stat>>();
 
 class BottomNavBarItemData {
   final String label;
@@ -67,9 +71,19 @@ class MyStatefulWidget extends StatefulWidget {
       Stats(),
     ),
     BottomNavBarItemData(
-      "Graphs",
-      Icon(Icons.access_time),
-      Graphs(pricePoints, streamController.stream),
+      "Putts",
+      Icon(Icons.area_chart_rounded),
+      Putts(pricePoints, streamController.stream),
+    ),
+    BottomNavBarItemData(
+      "GIR",
+      Icon(Icons.area_chart),
+      Gir(pricePoints, streamControllerGreen.stream),
+    ),
+    BottomNavBarItemData(
+      "Drives",
+      Icon(Icons.area_chart_rounded),
+      Drives(pricePoints, streamControllerDrive.stream),
     ),
   ];
 
@@ -183,6 +197,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
               (e) => BottomNavigationBarItem(
                 label: e.label,
                 icon: e.icon,
+                backgroundColor: Colors.grey,
               ),
             )
             .toList(),
@@ -670,6 +685,8 @@ class _StatsState extends State<Stats>
       StatList.add(s);
 
       streamController.add(StatList);
+      streamControllerGreen.add(StatList);
+      streamControllerDrive.add(StatList);
 
       globals.gStat gS =
           globals.gStat(int.parse(Fairway), int.parse(Green), int.parse(Putt));
@@ -810,6 +827,9 @@ class _StatsState extends State<Stats>
                       onPressed: () {
                         setState(() {
                           StatList.remove(s);
+                          streamController.add(StatList);
+                          streamControllerGreen.add(StatList);
+                          streamControllerDrive.add(StatList);
                           globals.gList.remove(s);
                           refreshListRemove(s.fairway, s.green, s.putt);
                         });
@@ -908,18 +928,18 @@ List<PricePoint> get pricePoints {
   return l;
 }
 
-class Graphs extends StatefulWidget {
+class Putts extends StatefulWidget {
   final List<PricePoint> points;
   final Stream<List<Stat>> stream;
 
   //const Graphs(this.points, {Key? key}) : super(key: key);
-  const Graphs(this.points, this.stream);
+  const Putts(this.points, this.stream);
 
   @override
-  _GraphsState createState() => _GraphsState();
+  _PuttsState createState() => _PuttsState();
 }
 
-class _GraphsState extends State<Graphs> {
+class _PuttsState extends State<Putts> {
   List<PricePoint> points = <PricePoint>[];
   /*final Stream<int> stream;
 
@@ -939,8 +959,135 @@ class _GraphsState extends State<Graphs> {
     //List menuList = ['A', 'B', 'C'];
     setState(() {
       List<PricePoint> l = <PricePoint>[];
-      for (var i = 0; i < globals.gList.length; i++) {
+      /*for (var i = 0; i < globals.gList.length; i++) {
         l.add(PricePoint(x: globals.gList[i].putt.toDouble(), y: i.toDouble()));
+      }*/
+      for (var i = 0; i < list.length; i++) {
+        l.add(PricePoint(x: list[i].putt.toDouble(), y: i.toDouble()));
+      }
+      points = l;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 2,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: points.map((point) => FlSpot(point.y, point.x)).toList(),
+              isCurved: false,
+              // dotData: FlDotData(
+              //   show: false,
+              // ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Gir extends StatefulWidget {
+  final List<PricePoint> points;
+  final Stream<List<Stat>> stream;
+
+  //const Graphs(this.points, {Key? key}) : super(key: key);
+  const Gir(this.points, this.stream);
+
+  @override
+  _GirState createState() => _GirState();
+}
+
+class _GirState extends State<Gir> {
+  List<PricePoint> points = <PricePoint>[];
+  /*final Stream<int> stream;
+
+  //const Graphs(this.points, {Key? key}) : super(key: key);
+  const Graphs(this.points, this.stream);*/
+
+  @override
+  void initState() {
+    super.initState();
+    widget.stream.listen((list) {
+      mySetState(list);
+    });
+  }
+
+//switch to l.add(list) parameter
+  void mySetState(List<Stat> list) {
+    //List menuList = ['A', 'B', 'C'];
+    setState(() {
+      List<PricePoint> l = <PricePoint>[];
+      /*for (var i = 0; i < globals.gList.length; i++) {
+        l.add(PricePoint(x: globals.gList[i].putt.toDouble(), y: i.toDouble()));
+      }*/
+      for (var i = 0; i < list.length; i++) {
+        l.add(PricePoint(x: list[i].green.toDouble(), y: i.toDouble()));
+      }
+      points = l;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 2,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: points.map((point) => FlSpot(point.y, point.x)).toList(),
+              isCurved: false,
+              // dotData: FlDotData(
+              //   show: false,
+              // ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Drives extends StatefulWidget {
+  final List<PricePoint> points;
+  final Stream<List<Stat>> stream;
+
+  //const Graphs(this.points, {Key? key}) : super(key: key);
+  const Drives(this.points, this.stream);
+
+  @override
+  _DrivesState createState() => _DrivesState();
+}
+
+class _DrivesState extends State<Drives> {
+  List<PricePoint> points = <PricePoint>[];
+  /*final Stream<int> stream;
+
+  //const Graphs(this.points, {Key? key}) : super(key: key);
+  const Graphs(this.points, this.stream);*/
+
+  @override
+  void initState() {
+    super.initState();
+    widget.stream.listen((list) {
+      mySetState(list);
+    });
+  }
+
+//switch to l.add(list) parameter
+  void mySetState(List<Stat> list) {
+    //List menuList = ['A', 'B', 'C'];
+    setState(() {
+      List<PricePoint> l = <PricePoint>[];
+      /*for (var i = 0; i < globals.gList.length; i++) {
+        l.add(PricePoint(x: globals.gList[i].putt.toDouble(), y: i.toDouble()));
+      }*/
+      for (var i = 0; i < list.length; i++) {
+        l.add(PricePoint(x: list[i].fairway.toDouble(), y: i.toDouble()));
       }
       points = l;
     });
