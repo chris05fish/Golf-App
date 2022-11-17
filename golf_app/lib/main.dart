@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:golf_app/globals.dart' as globals;
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'dart:async';
@@ -401,9 +400,6 @@ class _StatsState extends State<Stats>
       streamControllerGreen.add(StatList);
       streamControllerDrive.add(StatList);
 
-      globals.gStat gS =
-          globals.gStat(int.parse(Fairway), int.parse(Green), int.parse(Putt));
-      globals.gList.add(gS);
       refreshList(int.parse(Fairway), int.parse(Green), int.parse(Putt));
       Fairway_Controller.text = "";
       Green_Controller.text = "";
@@ -535,7 +531,6 @@ class _StatsState extends State<Stats>
                           streamController.add(StatList);
                           streamControllerGreen.add(StatList);
                           streamControllerDrive.add(StatList);
-                          globals.gList.remove(s);
                           refreshListRemove(s.fairway, s.green, s.putt);
                         });
                       },
@@ -559,9 +554,6 @@ class PricePoint {
 
 List<PricePoint> get pricePoints {
   List<PricePoint> l = <PricePoint>[];
-  for (var i = 0; i < globals.gList.length; i++) {
-    l.add(PricePoint(x: globals.gList[i].putt.toDouble(), y: i.toDouble()));
-  }
   return l;
 }
 
